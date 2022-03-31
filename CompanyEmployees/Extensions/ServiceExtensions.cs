@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Contracts;
+using LoggerService;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CompanyEmployees.Extensions
 {
     public static class ServiceExtensions
     {
-        public static void ConfigureCors(this IServiceCollection service) =>
-            service.AddCors(options =>
+        public static void ConfigureCors(this IServiceCollection services) =>
+            services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", builder =>
                 builder.AllowAnyOrigin()
@@ -14,10 +16,13 @@ namespace CompanyEmployees.Extensions
                 .AllowAnyHeader());
             });
 
-        public static void ConfigureIISIntedgration(this IServiceCollection service) =>
-            service.Configure<IISOptions>(options => {
+        public static void ConfigureIISIntedgration(this IServiceCollection services) =>
+            services.Configure<IISOptions>(options => {
                 
             });
+
+        public static void ConfigureLoggerService(this IServiceCollection services) =>
+            services.AddScoped<ILoggerManager, LoggerManager>();
 
 
     }
