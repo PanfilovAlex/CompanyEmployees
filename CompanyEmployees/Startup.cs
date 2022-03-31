@@ -15,6 +15,7 @@ using CompanyEmployees.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using NLog;
 using System.IO;
+using Microsoft.EntityFrameworkCore.Design;
 
 namespace CompanyEmployees
 {
@@ -34,7 +35,9 @@ namespace CompanyEmployees
             services.ConfigureCors();
             services.ConfigureIISIntedgration();
             services.ConfigureLoggerService();
-            
+            services.ConfigureSqlContext(Configuration);
+            services.ConfigureRepositoryManager();
+
             services.AddControllers();
         }
 

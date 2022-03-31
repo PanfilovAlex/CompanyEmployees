@@ -13,20 +13,19 @@ namespace CompanyEmployees.Controllers
     public class WeatherForecastController : ControllerBase
     {
 
-        private readonly ILoggerManager _logger;
+        private readonly IRepositoryManager _repositoryManager;
 
-        public WeatherForecastController(ILoggerManager logger)
+        public WeatherForecastController(IRepositoryManager repositoryManager)
         {
-            _logger = logger;
+            _repositoryManager = repositoryManager;
         }
 
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            _logger.LogInfo("");
-            _logger.LogWarn("");
-            _logger.LogDebug("");
-            _logger.LogError("");
+            _repositoryManager.Company.ToString();
+            _repositoryManager.Employee.ToString();
+            
 
             return new string[] { "value1 ", "value2" };
         }
