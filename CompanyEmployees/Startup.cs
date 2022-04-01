@@ -29,6 +29,7 @@ namespace CompanyEmployees
             services.ConfigureLoggerService();
             services.ConfigureSqlContext(Configuration);
             services.ConfigureRepositoryManager();
+            services.AddAutoMapper(typeof(Entities.DataTrancferObjects.MapperProfile));
 
             services.AddControllers();
         }
