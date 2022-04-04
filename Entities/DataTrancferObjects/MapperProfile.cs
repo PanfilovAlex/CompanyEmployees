@@ -10,7 +10,9 @@ namespace Entities.DataTrancferObjects
         {
             CreateMap<Company, CompanyDto>()
                 .ForMember(c => c.FullAddress, option =>
-                option.MapFrom(x => string.Join(', ', x.Country, x.Address)));
+                option.MapFrom(x => string.Join(' ', x.Country, x.Address)));
+
+            CreateMap<Employee, EmployeeDto>();
         }
     }
 }
