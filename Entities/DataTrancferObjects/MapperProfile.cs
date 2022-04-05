@@ -13,6 +13,9 @@ namespace Entities.DataTrancferObjects
                 option.MapFrom(x => string.Join(' ', x.Country, x.Address)));
 
             CreateMap<Employee, EmployeeDto>();
+            CreateMap<CompanyForCreationDto, Company>();
+            CreateMap<EmployeeForCreationDto, Employee>();
+            
         }
     }
 }
