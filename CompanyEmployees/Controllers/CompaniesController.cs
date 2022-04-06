@@ -25,7 +25,7 @@ namespace CompanyEmployees.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet(Name ="GetCompanies")]
+        [HttpGet(Name = "GetCompanies")]
         public IActionResult GetCompanies()
         {
             var companies = _repository.Company.GetAllCompanies(trackChanges: false);
@@ -121,7 +121,7 @@ namespace CompanyEmployees.Controllers
         {
             var company = _repository.Company.GetCompany(id, trackChanges: false);
 
-            if(company == null)
+            if (company == null)
             {
                 _logger.LogError($"Company with id: {id} doesn't exist in the database.");
                 return NotFound();
@@ -130,7 +130,29 @@ namespace CompanyEmployees.Controllers
             _repository.Company.DeleteCompany(company);
             _repository.Save();
 
-            return RedirectToAction("GetCompanies");
+            return Ok($"{company.Name} was deleted");
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateCompany(Guid id, [FromBody] CompanyForUpdateDto company)
+        {
+            if (company == null)
+            {
+                _logger.LogError("CompanyForUpdateDto object sent from client is null.");
+                return BadRequest("CompanyForUpdateDto object is null");
+            }
+
+            var companyEntity = _repository.Company.GetCompany(id, trackChanges: true);
+            if (companyEntity == null)
+            {
+                _logger.LogError($"Company with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+
+            _mapper.Map(company, companyEntity);
+            _repository.Save();
+
+            return Ok($"{company.Name} was updated");
         }
 
     }

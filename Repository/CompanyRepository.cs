@@ -28,6 +28,8 @@ namespace Repository
             .ToList();
 
         public void DeleteCompany(Company company) => Delete(company);
-       
+        
+        public void UpdateCompany(Company company) => Update(company);
+
     }
 }

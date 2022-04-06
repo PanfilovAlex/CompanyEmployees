@@ -28,5 +28,7 @@ namespace Repository
 
         public IEnumerable<Employee> GetEmployees(Guid companyId, bool trackCganges) =>
             FindByCondition(e => e.CompanyId.Equals(companyId), trackCganges).OrderBy(e => e.Name);
+
+        public void UpdateEmployee(Employee employee) => Update(employee);
     }
 }
