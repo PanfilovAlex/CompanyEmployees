@@ -11,7 +11,7 @@ namespace Entities.DataTrancferObjects
         public string Name { get; set; }
         public int Age { get; set; }
         public string Position { get; set; }
-        public IEnumerable<EmployeeForUpdateDto> Employees { get; set; }
+       
 
     }
 }
