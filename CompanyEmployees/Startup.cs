@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using NLog;
 using System.IO;
 using Contracts;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CompanyEmployees
 {
@@ -30,12 +31,17 @@ namespace CompanyEmployees
             services.ConfigureSqlContext(Configuration);
             services.ConfigureRepositoryManager();
             services.AddAutoMapper(typeof(Entities.DataTrancferObjects.MapperProfile));
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            });
 
             services.AddControllers(config =>
             {
                 config.RespectBrowserAcceptHeader = true;
                 config.ReturnHttpNotAcceptable = true;
-            }).AddXmlDataContractSerializerFormatters()
+            }).AddNewtonsoftJson()
+            .AddXmlDataContractSerializerFormatters()
             .AddCustomCSVFormatter();
         }
 
