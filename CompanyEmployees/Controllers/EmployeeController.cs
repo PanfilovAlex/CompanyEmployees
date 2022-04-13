@@ -156,6 +156,5 @@ namespace CompanyEmployees.Controllers
 
             return Ok($"{employeeToPatch.Name} was updated.");
         }
-
     }
 }
