@@ -6,6 +6,7 @@ using Entities.Models;
 using Entities.RequestFeatures;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -30,6 +31,11 @@ namespace CompanyEmployees.Controllers
         [HttpGet(Name = "GetEmployees")]
         public async Task<IActionResult> GetEmployeesForCompany(Guid companyId, [FromQuery] EmployeeParameters employeeParameters)
         {
+            if (!employeeParameters.ValidAgeRange)
+            {
+                return BadRequest("Max age can't be less than min");
+            }
+
             var company = await _repository.Company.GetCompanyAsync(companyId, trackChanges: false);
             if (company == null)
             {
@@ -39,6 +45,9 @@ namespace CompanyEmployees.Controllers
             }
 
             var employeesFromDb = await _repository.Employee.GetEmployeesAsync(companyId, employeeParameters, trackCganges: false);
+
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(employeesFromDb.MetaData));
+
             var employeeDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesFromDb);
 
             return Ok(employeeDto);
