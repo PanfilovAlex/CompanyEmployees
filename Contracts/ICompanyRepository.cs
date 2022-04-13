@@ -9,7 +9,7 @@ namespace Contracts
     {
         Task<IEnumerable<Company>> GetAllCompanies(bool trackChanges);
         Task<IEnumerable<Company>> GetByIds(IEnumerable<Guid> ids, bool trackChanges);
-        Task<Company> GetCompany(Guid id, bool trackChanges);
+        Task<Company> GetCompanyAsync(Guid id, bool trackChanges);
         void CreateCompany(Company company);
         void DeleteCompany(Company company);
         void UpdateCompany(Company company);

@@ -9,6 +9,7 @@ using NLog;
 using System.IO;
 using Contracts;
 using Microsoft.AspNetCore.Mvc;
+using CompanyEmployees.ActionFilters;
 
 namespace CompanyEmployees
 {
@@ -31,6 +32,7 @@ namespace CompanyEmployees
             services.ConfigureSqlContext(Configuration);
             services.ConfigureRepositoryManager();
             services.AddAutoMapper(typeof(Entities.DataTrancferObjects.MapperProfile));
+            services.AddScoped<ValidationFilterAttribute>();
             services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
