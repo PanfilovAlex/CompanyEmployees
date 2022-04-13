@@ -3,6 +3,7 @@ using CompanyEmployees.ActionFilters;
 using Contracts;
 using Entities.DataTrancferObjects;
 using Entities.Models;
+using Entities.RequestFeatures;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -27,7 +28,7 @@ namespace CompanyEmployees.Controllers
         }
 
         [HttpGet(Name = "GetEmployees")]
-        public async Task<IActionResult> GetEmployeesForCompany(Guid companyId)
+        public async Task<IActionResult> GetEmployeesForCompany(Guid companyId, [FromQuery] EmployeeParameters employeeParameters)
         {
             var company = await _repository.Company.GetCompanyAsync(companyId, trackChanges: false);
             if (company == null)
@@ -37,7 +38,7 @@ namespace CompanyEmployees.Controllers
                 return NotFound();
             }
 
-            var employeesFromDb = await _repository.Employee.GetEmployeesAsync(companyId, trackCganges: false);
+            var employeesFromDb = await _repository.Employee.GetEmployeesAsync(companyId, employeeParameters, trackCganges: false);
             var employeeDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesFromDb);
 
             return Ok(employeeDto);
@@ -108,7 +109,7 @@ namespace CompanyEmployees.Controllers
             [FromBody] EmployeeForUpdateDto employee)
         {
             var employeFofCompany = HttpContext.Items["employee"] as Employee;
-            
+
             _mapper.Map(employee, employeFofCompany);
             await _repository.SaveAsync();
 
