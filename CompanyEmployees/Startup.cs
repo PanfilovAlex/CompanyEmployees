@@ -31,8 +31,12 @@ namespace CompanyEmployees
             services.ConfigureLoggerService();
             services.ConfigureSqlContext(Configuration);
             services.ConfigureRepositoryManager();
+            
             services.AddAutoMapper(typeof(Entities.DataTrancferObjects.MapperProfile));
+            
             services.AddScoped<ValidationFilterAttribute>();
+            services.AddScoped<ValidateEmployeeForCompanyExistsAttribute>();
+
             services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;

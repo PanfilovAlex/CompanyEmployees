@@ -13,15 +13,15 @@ namespace CompanyEmployees.ActionFilters
 
         public ValidateCompanyExistsAttribute(IRepositoryManager repository, ILoggerManager logger)
         {
-            _logger = logger;
             _repository = repository;
+            _logger = logger;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var trachChanges = context.HttpContext.Request.Method.Equals("PUT");
+            var trackChanges = context.HttpContext.Request.Method.Equals("PUT");
             var id = (Guid)context.ActionArguments["id"];
-            var company = await _repository.Company.GetCompanyAsync(id, trachChanges);
+            var company = await _repository.Company.GetCompanyAsync(id, trackChanges);
 
             if (company == null)
             {

@@ -24,11 +24,11 @@ namespace Repository
         public void DeleteEmployee(Employee employee) =>
             Delete(employee);
 
-        public async Task<Employee> GetEmployee(Guid companyId, Guid Id, bool trackChanges) =>
+        public async Task<Employee> GetEmployeeAsync(Guid companyId, Guid Id, bool trackChanges) =>
             await FindByCondition(e => e.CompanyId.Equals(companyId) && e.Id.Equals(Id), trackChanges)
             .SingleOrDefaultAsync();
 
-        public async Task<IEnumerable<Employee>> GetEmployees(Guid companyId, bool trackCganges) =>
+        public async Task<IEnumerable<Employee>> GetEmployeesAsync(Guid companyId, bool trackCganges) =>
             await FindByCondition(e => e.CompanyId.Equals(companyId), trackCganges)
             .OrderBy(e => e.Name)
             .ToListAsync();
