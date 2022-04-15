@@ -7,6 +7,7 @@ using Entities.RequestFeatures;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Repository.DataShaping;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -20,12 +21,15 @@ namespace CompanyEmployees.Controllers
         private ILoggerManager _logger;
         private IMapper _mapper;
         private IRepositoryManager _repository;
+        private IDataShaper<EmployeeDto> _shaper;
 
-        public EmployeeController(IRepositoryManager repository, ILoggerManager logger, IMapper mapper)
+        public EmployeeController(IRepositoryManager repository, ILoggerManager logger, 
+            IMapper mapper, IDataShaper<EmployeeDto> shaper)
         {
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
+            _shaper = shaper;
         }
 
         [HttpGet(Name = "GetEmployees")]
@@ -50,7 +54,7 @@ namespace CompanyEmployees.Controllers
 
             var employeeDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesFromDb);
 
-            return Ok(employeeDto);
+            return Ok(_shaper.ShapeData(employeeDto, employeeParameters.Fields));
         }
 
         [HttpGet("{id}", Name = "GetEmployeeForCompany")]

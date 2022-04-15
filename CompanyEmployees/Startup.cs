@@ -10,6 +10,8 @@ using System.IO;
 using Contracts;
 using Microsoft.AspNetCore.Mvc;
 using CompanyEmployees.ActionFilters;
+using Repository.DataShaping;
+using Entities.DataTrancferObjects;
 
 namespace CompanyEmployees
 {
@@ -36,6 +38,7 @@ namespace CompanyEmployees
             
             services.AddScoped<ValidationFilterAttribute>();
             services.AddScoped<ValidateEmployeeForCompanyExistsAttribute>();
+            services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
 
             services.Configure<ApiBehaviorOptions>(options =>
             {
