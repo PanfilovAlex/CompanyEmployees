@@ -51,13 +51,15 @@ namespace CompanyEmployees.Extensions
                 var newtonsoftJsonOutputFormatter = config.OutputFormatters.OfType<NewtonsoftJsonOutputFormatter>()?.FirstOrDefault();
                 if (newtonsoftJsonOutputFormatter != null)
                 {
-                    newtonsoftJsonOutputFormatter.SupportedMediaTypes.Add("application/vnd.codemaze.hateoas+json");
+                    newtonsoftJsonOutputFormatter.SupportedMediaTypes.Add("application/vnd.testdomain.hateoas+json");
+                    newtonsoftJsonOutputFormatter.SupportedMediaTypes.Add("application/vnd.testdomain.apiroot+json");
                 }
 
                 var xmlOutputFormatter = config.OutputFormatters.OfType<XmlDataContractSerializerOutputFormatter>()?.FirstOrDefault();
                 if (xmlOutputFormatter != null)
                 {
-                    xmlOutputFormatter.SupportedMediaTypes.Add("application/vnd.codemaze.hateoas+xml");
+                    xmlOutputFormatter.SupportedMediaTypes.Add("application/vnd.testdomain.hateoas+xml");
+                    xmlOutputFormatter.SupportedMediaTypes.Add("application/vnd.testdomain.apiroot+xml");
                 }
             });
         }

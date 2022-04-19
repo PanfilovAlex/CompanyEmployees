@@ -76,7 +76,7 @@ namespace CompanyEmployees.Controllers
             return Ok(companiesForReturn);
         }
         
-        [HttpPost]
+        [HttpPost(Name ="CreateCompany")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateCompany([FromBody] CompanyForCreationDto company)
         {
