@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using CompanyEmployees.ActionFilters;
 using Repository.DataShaping;
 using Entities.DataTrancferObjects;
+using CompanyEmployees.Utility;
 
 namespace CompanyEmployees
 {
@@ -39,6 +40,8 @@ namespace CompanyEmployees
             services.AddScoped<ValidationFilterAttribute>();
             services.AddScoped<ValidateEmployeeForCompanyExistsAttribute>();
             services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
+            services.AddScoped<ValidateMediaTypeAttribute>();
+            services.AddScoped<EmployeeLinks>();
 
             services.Configure<ApiBehaviorOptions>(options =>
             {
@@ -52,6 +55,8 @@ namespace CompanyEmployees
             }).AddNewtonsoftJson()
             .AddXmlDataContractSerializerFormatters()
             .AddCustomCSVFormatter();
+
+            services.AddCustomMediaTypes();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

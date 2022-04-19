@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CompanyEmployees.ActionFilters;
+using CompanyEmployees.Utility;
 using Contracts;
 using Entities.DataTrancferObjects;
 using Entities.Models;
@@ -21,18 +22,19 @@ namespace CompanyEmployees.Controllers
         private ILoggerManager _logger;
         private IMapper _mapper;
         private IRepositoryManager _repository;
-        private IDataShaper<EmployeeDto> _shaper;
+        private EmployeeLinks _employeeLinks;
 
-        public EmployeeController(IRepositoryManager repository, ILoggerManager logger, 
-            IMapper mapper, IDataShaper<EmployeeDto> shaper)
+        public EmployeeController(IRepositoryManager repository, ILoggerManager logger,
+            IMapper mapper, EmployeeLinks employeeLinks)
         {
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
-            _shaper = shaper;
+            _employeeLinks = employeeLinks;
         }
 
         [HttpGet(Name = "GetEmployees")]
+        [ServiceFilter(typeof(ValidateMediaTypeAttribute))]
         public async Task<IActionResult> GetEmployeesForCompany(Guid companyId, [FromQuery] EmployeeParameters employeeParameters)
         {
             if (!employeeParameters.ValidAgeRange)
@@ -53,8 +55,13 @@ namespace CompanyEmployees.Controllers
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(employeesFromDb.MetaData));
 
             var employeeDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesFromDb);
+            var links = _employeeLinks.TryGenerateLinks(employeeDto, employeeParameters.Fields, companyId, HttpContext);
 
-            return Ok(_shaper.ShapeData(employeeDto, employeeParameters.Fields));
+            var linkEnt = links.LinkedEntities;
+            var shapedEnt = links.ShapedEntities;
+
+
+            return links.HasLinks ? Ok(links.LinkedEntities) : Ok(links.ShapedEntities);
         }
 
         [HttpGet("{id}", Name = "GetEmployeeForCompany")]
