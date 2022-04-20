@@ -31,7 +31,7 @@ namespace CompanyEmployees.Controllers
         [HttpGet(Name = "GetCompanies")]
         public async Task<IActionResult> GetCompanies()
         {
-            var companies = await _repository.Company.GetAllCompanies(trackChanges: false);
+            var companies = await _repository.Company.GetAllCompaniesAsync(trackChanges: false);
             var companiesDto = _mapper.Map<IEnumerable<CompanyDto>>(companies);
 
             return Ok(companiesDto);
@@ -75,8 +75,8 @@ namespace CompanyEmployees.Controllers
             var companiesForReturn = _mapper.Map<IEnumerable<CompanyDto>>(companiseEntity);
             return Ok(companiesForReturn);
         }
-        
-        [HttpPost(Name ="CreateCompany")]
+
+        [HttpPost(Name = "CreateCompany")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateCompany([FromBody] CompanyForCreationDto company)
         {

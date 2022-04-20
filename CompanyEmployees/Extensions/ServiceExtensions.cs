@@ -9,6 +9,8 @@ using Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using CompanyEmployees.Controllers;
 
 namespace CompanyEmployees.Extensions
 {
@@ -61,6 +63,19 @@ namespace CompanyEmployees.Extensions
                     xmlOutputFormatter.SupportedMediaTypes.Add("application/vnd.testdomain.hateoas+xml");
                     xmlOutputFormatter.SupportedMediaTypes.Add("application/vnd.testdomain.apiroot+xml");
                 }
+            });
+        }
+
+        public static void ConfigureVersioning(this IServiceCollection services)
+        {
+            services.AddApiVersioning(options =>
+            {
+                options.ReportApiVersions = true;
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.ApiVersionReader = new HeaderApiVersionReader("api-version");
+                options.Conventions.Controller<CompaniesController>().HasApiVersion(new ApiVersion(1, 0));
+                options.Conventions.Controller<CompaniesV2Controller>().HasApiVersion(new ApiVersion(2, 0));
             });
         }
     }
