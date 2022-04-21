@@ -10,11 +10,13 @@ using CompanyEmployees.ModelBinders;
 using Microsoft.AspNetCore.JsonPatch;
 using System.Threading.Tasks;
 using CompanyEmployees.ActionFilters;
+using Marvin.Cache.Headers;
 
 namespace CompanyEmployees.Controllers
 {
     [Route("api/companies")]
     [ApiController]
+    //[ResponseCache(CacheProfileName ="120SecondsDuration")]
     public class CompaniesController : ControllerBase
     {
         private ILoggerManager _logger;
@@ -38,6 +40,8 @@ namespace CompanyEmployees.Controllers
         }
 
         [HttpGet("{id}", Name = "CompanyById")]
+        [HttpCacheExpiration(CacheLocation = CacheLocation.Public, MaxAge = 60)]
+        [HttpCacheValidation(MustRevalidate = true)]
         public async Task<IActionResult> GetCompany(Guid id)
         {
             var company = await _repository.Company.GetCompanyAsync(id, trackChanges: false);

@@ -78,5 +78,22 @@ namespace CompanyEmployees.Extensions
                 options.Conventions.Controller<CompaniesV2Controller>().HasApiVersion(new ApiVersion(2, 0));
             });
         }
+
+        public static void ConfigureResponseCaching(this IServiceCollection services)
+        {
+            services.AddResponseCaching();
+        }
+
+        public static void ConfigureHttpCacheHeaders(this IServiceCollection services) =>
+            services.AddHttpCacheHeaders(
+                (experationOpt) =>
+                {
+                    experationOpt.MaxAge = 65;
+                    experationOpt.CacheLocation = Marvin.Cache.Headers.CacheLocation.Private;
+                },
+                (validationOpt) =>
+                {
+                    validationOpt.MustRevalidate = true;
+                });
     }
 }
