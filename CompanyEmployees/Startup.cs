@@ -13,6 +13,7 @@ using CompanyEmployees.ActionFilters;
 using Repository.DataShaping;
 using Entities.DataTrancferObjects;
 using CompanyEmployees.Utility;
+using AspNetCoreRateLimit;
 
 namespace CompanyEmployees
 {
@@ -37,9 +38,12 @@ namespace CompanyEmployees
             services.ConfigureVersioning();
             services.ConfigureResponseCaching();
             services.ConfigureHttpCacheHeaders();
-            
+            services.AddMemoryCache();
+            services.ConfigureRateLimitingOptions();
+            services.AddHttpContextAccessor();
+
             services.AddAutoMapper(typeof(Entities.DataTrancferObjects.MapperProfile));
-            
+
             services.AddScoped<ValidationFilterAttribute>();
             services.AddScoped<ValidateEmployeeForCompanyExistsAttribute>();
             services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
@@ -88,6 +92,7 @@ namespace CompanyEmployees
 
             app.UseResponseCaching();
             app.UseHttpCacheHeaders();
+            app.UseIpRateLimiting();
 
             app.UseRouting();
 
