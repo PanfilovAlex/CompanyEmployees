@@ -9,6 +9,15 @@ using Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using CompanyEmployees.Controllers;
+using System.Collections.Generic;
+using AspNetCoreRateLimit;
+using Entities.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace CompanyEmployees.Extensions
 {
@@ -51,14 +60,111 @@ namespace CompanyEmployees.Extensions
                 var newtonsoftJsonOutputFormatter = config.OutputFormatters.OfType<NewtonsoftJsonOutputFormatter>()?.FirstOrDefault();
                 if (newtonsoftJsonOutputFormatter != null)
                 {
-                    newtonsoftJsonOutputFormatter.SupportedMediaTypes.Add("application/vnd.codemaze.hateoas+json");
+                    newtonsoftJsonOutputFormatter.SupportedMediaTypes.Add("application/vnd.testdomain.hateoas+json");
+                    newtonsoftJsonOutputFormatter.SupportedMediaTypes.Add("application/vnd.testdomain.apiroot+json");
                 }
 
                 var xmlOutputFormatter = config.OutputFormatters.OfType<XmlDataContractSerializerOutputFormatter>()?.FirstOrDefault();
                 if (xmlOutputFormatter != null)
                 {
-                    xmlOutputFormatter.SupportedMediaTypes.Add("application/vnd.codemaze.hateoas+xml");
+                    xmlOutputFormatter.SupportedMediaTypes.Add("application/vnd.testdomain.hateoas+xml");
+                    xmlOutputFormatter.SupportedMediaTypes.Add("application/vnd.testdomain.apiroot+xml");
                 }
+            });
+        }
+
+        public static void ConfigureVersioning(this IServiceCollection services)
+        {
+            services.AddApiVersioning(options =>
+            {
+                options.ReportApiVersions = true;
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.ApiVersionReader = new HeaderApiVersionReader("api-version");
+                options.Conventions.Controller<CompaniesController>().HasApiVersion(new ApiVersion(1, 0));
+                options.Conventions.Controller<CompaniesV2Controller>().HasApiVersion(new ApiVersion(2, 0));
+            });
+        }
+
+        public static void ConfigureResponseCaching(this IServiceCollection services)
+        {
+            services.AddResponseCaching();
+        }
+
+        public static void ConfigureHttpCacheHeaders(this IServiceCollection services) =>
+            services.AddHttpCacheHeaders(
+                (experationOpt) =>
+                {
+                    experationOpt.MaxAge = 65;
+                    experationOpt.CacheLocation = Marvin.Cache.Headers.CacheLocation.Private;
+                },
+                (validationOpt) =>
+                {
+                    validationOpt.MustRevalidate = true;
+                });
+
+        public static void ConfigureRateLimitingOptions(this IServiceCollection services)
+        {
+            var rateLimitRules = new List<RateLimitRule>()
+            {
+                new RateLimitRule()
+                {
+                    Endpoint ="*",
+                    Limit =30,
+                    Period ="5m"
+                }
+            };
+
+            services.Configure<IpRateLimitOptions>(options =>
+           {
+               options.GeneralRules = rateLimitRules;
+           });
+
+            services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+            services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+            services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+        }
+
+        public static void ConfigureIdentity(this IServiceCollection services)
+        {
+            var builder = services.AddIdentityCore<User>(o =>
+           {
+               o.Password.RequireDigit = true;
+               o.Password.RequireLowercase = true;
+               o.Password.RequireUppercase = true;
+               o.Password.RequireNonAlphanumeric = false;
+               o.Password.RequiredLength = 10;
+               o.User.RequireUniqueEmail = true;
+
+           });
+
+            builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), builder.Services);
+
+            builder.AddEntityFrameworkStores<RepositoryContext>().AddDefaultTokenProviders();
+        }
+
+        public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
+        {
+            var jwtSettings = configuration.GetSection("JwtSettings");
+            var secretKey = "PanfilovSecreteKey";
+
+            services.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.GetSection("validIssuer").Value,
+                    ValidAudience = jwtSettings.GetSection("validAudience").Value,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+                };
             });
         }
     }

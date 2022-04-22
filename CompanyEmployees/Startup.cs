@@ -13,6 +13,8 @@ using CompanyEmployees.ActionFilters;
 using Repository.DataShaping;
 using Entities.DataTrancferObjects;
 using CompanyEmployees.Utility;
+using AspNetCoreRateLimit;
+using Services;
 
 namespace CompanyEmployees
 {
@@ -34,14 +36,24 @@ namespace CompanyEmployees
             services.ConfigureLoggerService();
             services.ConfigureSqlContext(Configuration);
             services.ConfigureRepositoryManager();
-            
+            services.ConfigureVersioning();
+            services.ConfigureResponseCaching();
+            services.ConfigureHttpCacheHeaders();
+            services.AddMemoryCache();
+            services.ConfigureRateLimitingOptions();
+            services.AddHttpContextAccessor();
+            services.AddAuthentication();
+            services.ConfigureIdentity();
+            services.ConfigureJWT(Configuration);
+
             services.AddAutoMapper(typeof(Entities.DataTrancferObjects.MapperProfile));
-            
+
             services.AddScoped<ValidationFilterAttribute>();
             services.AddScoped<ValidateEmployeeForCompanyExistsAttribute>();
             services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
             services.AddScoped<ValidateMediaTypeAttribute>();
             services.AddScoped<EmployeeLinks>();
+            services.AddScoped<IAuthenticationManager, AuthenticationManager>();
 
             services.Configure<ApiBehaviorOptions>(options =>
             {
@@ -52,6 +64,7 @@ namespace CompanyEmployees
             {
                 config.RespectBrowserAcceptHeader = true;
                 config.ReturnHttpNotAcceptable = true;
+                config.CacheProfiles.Add("120SecondsDuration", new CacheProfile { Duration = 120 });
             }).AddNewtonsoftJson()
             .AddXmlDataContractSerializerFormatters()
             .AddCustomCSVFormatter();
@@ -82,8 +95,13 @@ namespace CompanyEmployees
                 ForwardedHeaders = ForwardedHeaders.All
             });
 
+            app.UseResponseCaching();
+            app.UseHttpCacheHeaders();
+            app.UseIpRateLimiting();
+
             app.UseRouting();
 
+            app.UseAuthentication(); 
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

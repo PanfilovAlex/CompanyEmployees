@@ -15,7 +15,7 @@ namespace Repository
             base(repositoryContext)
         { }
 
-        public async Task<IEnumerable<Company>> GetAllCompanies(bool trackChanges) =>
+        public async Task<IEnumerable<Company>> GetAllCompaniesAsync(bool trackChanges) =>
              await FindAll(trackChanges)
                 .OrderBy(c => c.Name)
                 .ToListAsync();

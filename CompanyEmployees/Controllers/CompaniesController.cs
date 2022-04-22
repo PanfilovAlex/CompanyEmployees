@@ -10,11 +10,14 @@ using CompanyEmployees.ModelBinders;
 using Microsoft.AspNetCore.JsonPatch;
 using System.Threading.Tasks;
 using CompanyEmployees.ActionFilters;
+using Marvin.Cache.Headers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CompanyEmployees.Controllers
 {
     [Route("api/companies")]
     [ApiController]
+    //[ResponseCache(CacheProfileName ="120SecondsDuration")]
     public class CompaniesController : ControllerBase
     {
         private ILoggerManager _logger;
@@ -28,16 +31,18 @@ namespace CompanyEmployees.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet(Name = "GetCompanies")]
+        [HttpGet(Name = "GetCompanies"), Authorize(Roles ="Manager")]
         public async Task<IActionResult> GetCompanies()
         {
-            var companies = await _repository.Company.GetAllCompanies(trackChanges: false);
+            var companies = await _repository.Company.GetAllCompaniesAsync(trackChanges: false);
             var companiesDto = _mapper.Map<IEnumerable<CompanyDto>>(companies);
 
             return Ok(companiesDto);
         }
 
         [HttpGet("{id}", Name = "CompanyById")]
+        [HttpCacheExpiration(CacheLocation = CacheLocation.Public, MaxAge = 60)]
+        [HttpCacheValidation(MustRevalidate = true)]
         public async Task<IActionResult> GetCompany(Guid id)
         {
             var company = await _repository.Company.GetCompanyAsync(id, trackChanges: false);
@@ -76,7 +81,7 @@ namespace CompanyEmployees.Controllers
             return Ok(companiesForReturn);
         }
 
-        [HttpPost]
+        [HttpPost(Name = "CreateCompany")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateCompany([FromBody] CompanyForCreationDto company)
         {
@@ -139,11 +144,21 @@ namespace CompanyEmployees.Controllers
         public async Task<IActionResult> UpdateCompany(Guid id, [FromBody] CompanyForUpdateDto company)
         {
             var companyEntity = HttpContext.Items["company"] as Company;
-            
+
             _mapper.Map(company, companyEntity);
             await _repository.SaveAsync();
 
             return Ok($"{companyEntity.Name} was updated");
         }
+
+        [HttpOptions]
+        public IActionResult GetCompaniesOptions()
+        {
+            Response.Headers.Add("Allow", "GET, OPTIONS, POST");
+
+            return Ok();
+        }
+
+
     }
 }
