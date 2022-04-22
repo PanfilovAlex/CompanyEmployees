@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using System.Threading.Tasks;
 using CompanyEmployees.ActionFilters;
 using Marvin.Cache.Headers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CompanyEmployees.Controllers
 {
@@ -30,7 +31,7 @@ namespace CompanyEmployees.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet(Name = "GetCompanies")]
+        [HttpGet(Name = "GetCompanies"), Authorize(Roles ="Manager")]
         public async Task<IActionResult> GetCompanies()
         {
             var companies = await _repository.Company.GetAllCompaniesAsync(trackChanges: false);

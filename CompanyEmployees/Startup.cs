@@ -14,6 +14,7 @@ using Repository.DataShaping;
 using Entities.DataTrancferObjects;
 using CompanyEmployees.Utility;
 using AspNetCoreRateLimit;
+using Services;
 
 namespace CompanyEmployees
 {
@@ -41,6 +42,9 @@ namespace CompanyEmployees
             services.AddMemoryCache();
             services.ConfigureRateLimitingOptions();
             services.AddHttpContextAccessor();
+            services.AddAuthentication();
+            services.ConfigureIdentity();
+            services.ConfigureJWT(Configuration);
 
             services.AddAutoMapper(typeof(Entities.DataTrancferObjects.MapperProfile));
 
@@ -49,6 +53,7 @@ namespace CompanyEmployees
             services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
             services.AddScoped<ValidateMediaTypeAttribute>();
             services.AddScoped<EmployeeLinks>();
+            services.AddScoped<IAuthenticationManager, AuthenticationManager>();
 
             services.Configure<ApiBehaviorOptions>(options =>
             {
@@ -96,6 +101,7 @@ namespace CompanyEmployees
 
             app.UseRouting();
 
+            app.UseAuthentication(); 
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
