@@ -15,6 +15,7 @@ using Entities.DataTrancferObjects;
 using CompanyEmployees.Utility;
 using AspNetCoreRateLimit;
 using Services;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 
 namespace CompanyEmployees
 {
@@ -70,6 +71,11 @@ namespace CompanyEmployees
             .AddCustomCSVFormatter();
 
             services.AddCustomMediaTypes();
+
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = "../ClientApp/build";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -107,6 +113,16 @@ namespace CompanyEmployees
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+
+            app.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = "../ClientApp";
+
+                if (env.IsDevelopment())
+                {
+                    spa.UseReactDevelopmentServer(npmScript: "start");
+                }
             });
         }
     }
