@@ -1,4 +1,5 @@
 using CompanyEmployees.Extensions;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +24,17 @@ else
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();
+app.UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.All });
+app.UseCors("CorsPolicy");
+
 app.UseAuthorization();
+
+app.Run(async context =>
+{
+    await context.Response.WriteAsync("Hello from the middleware component.");
+});
+
 
 app.MapControllers();
 
